@@ -1,24 +1,65 @@
-import Header from "@/components/layout/Header";
+import React, { useState } from 'react';
+import UserCard from '@/components/common/UserCard';
+import UserModal from '@/components/common/UserModal';
+import { UserProps, UserData } from '@/interfaces';
 
-const Home: React.FC = () => {
+interface HomeProps {
+  posts: UserProps[];
+}
+
+const Home: React.FC<HomeProps> = ({ posts }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => setIsModalOpen(true);
+  const handleCloseModal = () => setIsModalOpen(false);
+
+  const handleSubmit = (data: UserData) => {
+    console.log('New user data:', data);
+    // In a real app, send data to an API
+  };
+
   return (
-    <div className="flex flex-col h-screen">
-      <Header />
-      <main className="flex-grow flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600">
-        <div className="text-center">
-          <h1 className="text-5xl font-bold text-white">
-            Welcome to our Application!
-          </h1>
-          <p className="mt-4 text-xl text-white">
-            We're glad you're here. Explore and enjoy your experience.
-          </p>
-          <button className="mt-6 px-6 py-3 bg-white text-blue-500 rounded-full font-semibold hover:bg-gray-200 transition">
-            Get Started
-          </button>
-            </div>
-      </main>
-    </div>
-  )
+    <main className="flex flex-col items-center min-h-screen p-6">
+      <h1 className="text-4xl font-semibold text-gray-800 mb-6">Users</h1>
+      <button
+        onClick={handleOpenModal}
+        className="mb-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+      >
+        Add User
+      </button>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {posts.map((user) => (
+          <UserCard
+            key={user.id}
+            id={user.id}
+            name={user.name}
+            username={user.username}
+            email={user.email}
+            address={user.address}
+            phone={user.phone}
+            website={user.website}
+            company={user.company}
+          />
+        ))}
+      </div>
+      <UserModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleSubmit}
+      />
+    </main>
+  );
+};
+
+export async function getStaticProps() {
+  const response = await fetch('https://jsonplaceholder.typicode.com/users');
+  const posts = await response.json();
+
+  return {
+    props: {
+      posts
+    }
+  };
 }
 
 export default Home;
